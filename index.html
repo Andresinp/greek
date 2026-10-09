@@ -1,0 +1,432 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Griego básico</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+Display:wght@300;400;600&family=Commissioner:wght@300;400;500&family=DM+Mono:wght@400&display=swap">
+<style>
+/* Layout: one idea per screen in a centered column; verb sections widen to table | examples. */
+:root{
+  --paper:#f7f5f0;
+  --ink:#1a1a1a;
+  --ink-2:#555c66;
+  --ink-3:#7a808a;
+  --rule:#dedbd3;
+  --accent:#1f5fa8;
+  --f-greek:"Noto Serif Display","Noto Serif",Georgia,"Times New Roman",serif;
+  --f-text:"Commissioner",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-pron:"DM Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0c1320; --ink:#ece6da; --ink-2:#a3abb8; --ink-3:#6f7989; --rule:#223047; --accent:#72a6e6;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0c1320; --ink:#ece6da; --ink-2:#a3abb8; --ink-3:#6f7989; --rule:#223047; --accent:#72a6e6;
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:var(--f-text); font-size:16px; line-height:1.5; font-weight:400;
+  padding-inline:20px;
+  -webkit-font-smoothing:antialiased;
+}
+main{display:block}
+
+/* progress line */
+.progress{position:fixed;top:0;left:0;right:0;z-index:5;padding-top:env(safe-area-inset-top,0px);pointer-events:none}
+.progress i{display:block;height:2px;background:var(--accent);transform-origin:0 50%;transform:scaleX(0)}
+
+/* sections */
+.s{
+  min-height:90vh; max-width:720px; margin-inline:auto;
+  display:flex; flex-direction:column; justify-content:center;
+  padding-block:16vh;
+}
+.s.wide{max-width:1000px}
+
+.eyebrow{
+  display:flex; align-items:baseline; gap:.8em; flex-wrap:wrap;
+  font-size:.72rem; font-weight:500; letter-spacing:.2em; text-transform:uppercase;
+  color:var(--ink-3);
+}
+.eyebrow .n{color:var(--accent);font-variant-numeric:tabular-nums}
+.eyebrow .lem{font-family:var(--f-greek);font-size:1.05rem;letter-spacing:.02em;text-transform:none;color:var(--ink-2)}
+.note{margin-top:1rem;max-width:40ch;color:var(--ink-2);font-size:.98rem;text-wrap:pretty}
+.foot{margin-top:3rem;color:var(--ink-3);font-size:.82rem}
+.foot .gk{font-family:var(--f-greek);font-size:1rem;color:var(--ink-2)}
+
+/* the three-line item */
+.it{display:flex;flex-direction:column}
+.gr{
+  font-family:var(--f-greek); font-weight:400;
+  font-size:clamp(2rem,6.4vw,2.8rem); line-height:1.12;
+  cursor:pointer; width:fit-content; border-radius:2px;
+}
+.gr:focus-visible{outline:1px solid var(--accent);outline-offset:6px}
+.pr{
+  margin-top:.5rem; font-family:var(--f-pron); font-size:.95rem; letter-spacing:.02em;
+  color:var(--ink-3); transition:color .35s ease;
+}
+.pr .st{color:var(--ink-2)}
+.es{margin-top:.15rem;font-size:.9rem;color:var(--ink-3)}
+.lit .pr,.lit .pr .st{color:var(--accent)}
+.hl{color:var(--accent)}
+
+.items{display:flex;flex-direction:column;gap:2.6rem;margin-top:3.6rem}
+.items.sm{gap:1.9rem;margin-top:0}
+.items.sm .gr{font-size:clamp(1.45rem,4.4vw,1.75rem)}
+.items.sm .pr{font-size:.85rem;margin-top:.35rem}
+.items.sm .es{font-size:.84rem}
+.items.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2.8rem 3rem}
+.items + .items{margin-top:3.2rem;padding-top:3.2rem;border-top:1px solid var(--rule)}
+
+.sublabel{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-3);margin-bottom:1.6rem}
+
+/* two columns (pronouns, verb + examples) */
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:3.5rem 4.5rem;margin-top:3.6rem;align-items:start}
+.two > *{min-width:0}
+.wide .two{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}
+.cols .items.sm .gr{font-size:clamp(1.8rem,5vw,2.2rem)}
+
+/* conjugation table */
+.conj{border-top:1px solid var(--rule)}
+.row{display:grid;grid-template-columns:9em minmax(0,1fr);gap:1.2rem;align-items:baseline;padding-block:.95rem}
+.row .who{font-family:var(--f-greek);font-size:1.02rem;color:var(--ink-3);line-height:1.3}
+.row .v{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:1.1rem;row-gap:.15rem;min-width:0}
+.row .gr{font-size:1.7rem;font-weight:600}
+.row .pr{margin-top:0;font-size:.85rem}
+.row .es{margin-top:0;font-size:.85rem}
+
+/* gender pairs */
+.pairs{margin-top:3.6rem}
+.phead,.prow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:2.5rem}
+.phead{font-size:1.1rem;color:var(--ink-3);padding-bottom:1rem;border-bottom:1px solid var(--rule)}
+.prow{padding-block:1.6rem;row-gap:.35rem}
+.prow .gr{font-size:clamp(1.6rem,5vw,2.2rem)}
+.prow .pr{font-size:.85rem;margin-top:.3rem}
+.prow .es{grid-column:1 / -1;margin-top:.4rem;font-size:.85rem}
+
+/* title + closing */
+.s.hero,.s.end{align-items:center;text-align:center}
+.hero h1,.end h2{
+  margin:0; font-family:var(--f-greek); font-weight:300;
+  font-size:clamp(4rem,17vw,9.5rem); line-height:1; letter-spacing:-.01em;
+}
+.hero .pr,.end .pr{margin-top:1.4rem;font-size:1rem}
+.hero .es,.end .es{font-size:.95rem}
+.hint{margin-top:5rem;width:1px;height:64px;background:var(--rule);position:relative;overflow:hidden}
+.hint::after{content:"";position:absolute;left:0;top:-40%;width:1px;height:40%;background:var(--accent);animation:drip 2.4s ease-in-out infinite}
+@keyframes drip{to{top:100%}}
+.s.end{padding-bottom:45vh}
+
+/* scroll states (only when JS is running) */
+.fx .s{transition:opacity .7s ease-out,transform .7s ease-out,filter .7s ease-out;will-change:opacity,transform}
+.fx .s.future{opacity:0;transform:translateY(30px)}
+.fx .s.past{opacity:.15;transform:translateY(-20px);filter:blur(2px)}
+.fx .negsec .hl{display:inline-block;transition:transform .8s cubic-bezier(.2,.7,.2,1) .25s,opacity .8s ease .25s}
+.fx .negsec:not(.active) .hl{transform:translateX(-.9em);opacity:0}
+
+@media (max-width:700px){
+  .s{padding-block:12vh}
+  .two,.wide .two{grid-template-columns:1fr;gap:3rem}
+  .items.grid{grid-template-columns:1fr;gap:2.4rem}
+  .row{grid-template-columns:6.6em minmax(0,1fr);gap:.9rem}
+  .row .who{font-size:.95rem}
+  .phead,.prow{column-gap:1.4rem}
+}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  .fx .s{transition:opacity .4s linear}
+  .fx .s.future,.fx .s.past{transform:none;filter:none}
+  .fx .negsec .hl{transition:opacity .4s linear}
+  .fx .negsec:not(.active) .hl{transform:none}
+  .hint::after{animation:none;top:30%}
+}
+</style>
+
+<div class="progress" aria-hidden="true"><i id="bar"></i></div>
+<main id="app" lang="es"></main>
+
+<script>
+/* ——— Content ——— [griego, pronunciación, español]. {texto} = resaltado en azul. */
+const SECTIONS = [
+  { type: "title" },
+
+  { type: "list", label: "Saludos",
+    note: "Γεια sirve para hola y también para adiós.",
+    items: [
+      ["Γεια σου", "YA su", "Hola · informal"],
+      ["Γεια σας", "YA sas", "Hola · formal o a varios"],
+      ["Τι κάνεις;", "ti KA-nis", "¿Qué tal?"],
+      ["Καλά, ευχαριστώ", "ka-LA, ef-ja-ris-TO", "Bien, gracias"],
+      ["Εσύ;", "e-SI", "¿Y tú?"]
+    ]},
+
+  { type: "list", label: "Momentos del día",
+    note: "Καλησπέρα se usa desde media tarde.",
+    items: [
+      ["Καλημέρα", "ka-li-ME-ra", "Buenos días"],
+      ["Καλησπέρα", "ka-lis-PE-ra", "Buenas tardes · al llegar"],
+      ["Καληνύχτα", "ka-li-NIJ-ta", "Buenas noches · al despedirse"]
+    ]},
+
+  { type: "cols", label: "Pronombres",
+    note: "Casi siempre se omiten: el verbo ya dice quién es, como «soy» en vez de «yo soy».",
+    foot: "<span class='gk'>αυ</span> antes de <span class='gk'>τ</span> suena «af».",
+    cols: [
+      { head: "Singular", items: [
+        ["εγώ", "e-GO", "yo"],
+        ["εσύ", "e-SI", "tú"],
+        ["αυτ{ός}", "af-TOS", "él"],
+        ["αυτ{ή}", "af-TI", "ella"],
+        ["αυτ{ό}", "af-TO", "ello · neutro"]
+      ]},
+      { head: "Plural", items: [
+        ["εμείς", "e-MIS", "nosotros"],
+        ["εσείς", "e-SIS", "vosotros · ustedes · usted"],
+        ["αυτ{οί}", "af-TI", "ellos"],
+        ["αυτ{ές}", "af-TES", "ellas"],
+        ["αυτ{ά}", "af-TA", "ellos, ellas · neutro"]
+      ]}
+    ]},
+
+  { type: "verb", label: "Ser / estar", lemma: "είμαι",
+    note: "Un solo verbo para ser y para estar.",
+    rows: [
+      ["εγώ", "είμαι", "I-me", "soy · estoy"],
+      ["εσύ", "είσαι", "I-se", "eres"],
+      ["αυτός · αυτή · αυτό", "είναι", "I-ne", "es"],
+      ["εμείς", "είμαστε", "I-mas-te", "somos"],
+      ["εσείς", "είστε", "IS-te", "sois · son"],
+      ["αυτοί · αυτές · αυτά", "είναι", "I-ne", "son"]
+    ],
+    examples: [
+      ["Είμαι φοιτητής", "I-me fi-ti-TIS", "Soy estudiante"],
+      ["Είμαι μηχανικός", "I-me mi-ja-ni-KOS", "Soy ingeniero"],
+      ["Είμαι ερωτευμένος", "I-me e-ro-tev-ME-nos", "Estoy enamorado"],
+      ["Είμαι καλός", "I-me ka-LOS", "Soy bueno, majo"],
+      ["Είσαι φοιτήτρια;", "I-se fi-TI-tri-a", "¿Eres estudiante? · a una chica"],
+      ["Είμαστε φίλοι", "I-mas-te FI-li", "Somos amigos"],
+      ["Είναι ωραίο", "I-ne o-RE-o", "Es bonito"]
+    ]},
+
+  { type: "list", label: "Estar en un lugar",
+    note: "«En el / en la» se dice στο (neutro), στη o στην (fem.), στον (masc.).",
+    foot: "<span class='gk'>δ</span> suena suave, como la «d» de «cada».",
+    items: [
+      ["Πού είσαι;", "pu I-se", "¿Dónde estás?"],
+      ["Είμαι {στο} σπίτι", "I-me sto SPI-ti", "Estoy en casa"],
+      ["Είμαι {στο} μπαρ", "I-me sto bar", "Estoy en el bar"]
+    ],
+    moreGrid: true,
+    more: [
+      ["Είμαι {στη} δουλειά", "I-me sti du-LIA", "Estoy en el trabajo"],
+      ["Είμαι {στην} παραλία", "I-me stin pa-ra-LI-a", "Estoy en la playa"],
+      ["Είμαστε {στην} Αθήνα", "I-mas-te stin a-ZI-na", "Estamos en Atenas"],
+      ["Είναι {στο} ξενοδοχείο", "I-ne sto kse-no-do-JI-o", "Está en el hotel"]
+    ]},
+
+  { type: "pairs", label: "¿Cambia la palabra?",
+    note: "Muchas palabras cambian según el género.",
+    pairs: [
+      [["φοιτη{τής}", "fi-ti-TIS"], ["φοιτή{τρια}", "fi-TI-tri-a"], "estudiante"],
+      [["καλ{ός}", "ka-LOS"], ["καλ{ή}", "ka-LI"], "bueno · buena"],
+      [["ερωτευμέν{ος}", "e-ro-tev-ME-nos"], ["ερωτευμέν{η}", "e-ro-tev-ME-ni"], "enamorado · enamorada"],
+      [["μηχανικός", "mi-ja-ni-KOS"], ["μηχανικός", "mi-ja-ni-KOS"], "ingeniero · ingeniera · no cambia, solo el artículo: ο / η"]
+    ]},
+
+  { type: "verb", label: "Tener", lemma: "έχω",
+    rows: [
+      ["εγώ", "έχω", "E-jo", "tengo"],
+      ["εσύ", "έχεις", "E-jis", "tienes"],
+      ["αυτός · αυτή · αυτό", "έχει", "E-ji", "tiene"],
+      ["εμείς", "έχουμε", "E-ju-me", "tenemos"],
+      ["εσείς", "έχετε", "E-je-te", "tenéis · tienen"],
+      ["αυτοί · αυτές · αυτά", "έχουν", "E-jun", "tienen"]
+    ],
+    examples: [
+      ["Έχω ένα σκύλο", "E-jo E-na SKI-lo", "Tengo un perro"],
+      ["Έχεις χρόνο;", "E-jis JRO-no", "¿Tienes tiempo?"],
+      ["Έχω μια ερώτηση", "E-jo mia e-RO-ti-si", "Tengo una pregunta"]
+    ]},
+
+  { type: "verb", label: "Querer", lemma: "θέλω",
+    rows: [
+      ["εγώ", "θέλω", "ZE-lo", "quiero"],
+      ["εσύ", "θέλεις", "ZE-lis", "quieres"],
+      ["αυτός · αυτή · αυτό", "θέλει", "ZE-li", "quiere"],
+      ["εμείς", "θέλουμε", "ZE-lu-me", "queremos"],
+      ["εσείς", "θέλετε", "ZE-le-te", "queréis · quieren"],
+      ["αυτοί · αυτές · αυτά", "θέλουν", "ZE-lun", "quieren"]
+    ],
+    examples: [
+      ["Θέλω καφέ", "ZE-lo ka-FE", "Quiero café"],
+      ["Θέλω νερό, παρακαλώ", "ZE-lo ne-RO, pa-ra-ka-LO", "Quiero agua, por favor"],
+      ["Θέλεις κάτι;", "ZE-lis KA-ti", "¿Quieres algo?"]
+    ]},
+
+  { type: "grid", label: "Quiero + verbo",
+    note: "El griego no tiene infinitivo. «Quiero comer» se dice «quiero que coma»: θέλω να + verbo.",
+    items: [
+      ["Θέλω {να} φάω", "ZE-lo na FA-o", "Quiero comer"],
+      ["Θέλω {να} πιω", "ZE-lo na PIO", "Quiero beber"],
+      ["Θέλω {να} πάω", "ZE-lo na PA-o", "Quiero ir"],
+      ["Θέλω {να} έρθω", "ZE-lo na ER-zo", "Quiero venir"],
+      ["Θέλω {να} κοιμηθώ", "ZE-lo na ki-mi-ZO", "Quiero dormir"],
+      ["Θέλω {να} δω", "ZE-lo na DO", "Quiero ver"],
+      ["Θέλω {να} μιλήσω", "ZE-lo na mi-LI-so", "Quiero hablar"],
+      ["Θέλω {να} μάθω", "ZE-lo na MA-zo", "Quiero aprender"],
+      ["Θέλω {να} αγοράσω", "ZE-lo na a-go-RA-so", "Quiero comprar"],
+      ["Θέλω {να} φύγω", "ZE-lo na FI-go", "Quiero irme"]
+    ],
+    moreGrid: true,
+    more: [
+      ["Θέλεις {να} πάμε;", "ZE-lis na PA-me", "¿Vamos? · ¿quieres que vayamos?"],
+      ["Μπορώ {να} πληρώσω;", "bo-RO na pli-RO-so", "¿Puedo pagar?"]
+    ]},
+
+  { type: "list", label: "Negación", cls: "negsec",
+    note: "δεν va delante del verbo.",
+    items: [
+      ["{Δεν} είμαι φοιτητής", "den I-me fi-ti-TIS", "No soy estudiante"],
+      ["{Δεν} έχω χρόνο", "den E-jo JRO-no", "No tengo tiempo"],
+      ["{Δεν} θέλω καφέ", "den ZE-lo ka-FE", "No quiero café"]
+    ]},
+
+  { type: "list", label: "Me gusta", cls: "negsec",
+    note: "Funciona igual que en español: μου es «me».",
+    items: [
+      ["Μου αρέσει", "mu a-RE-si", "Me gusta"],
+      ["Μου αρέσουν", "mu a-RE-sun", "Me gustan"],
+      ["{Δεν} μου αρέσει", "den mu a-RE-si", "No me gusta"]
+    ],
+    more: [
+      ["Μου αρέσει η Ελλάδα", "mu a-RE-si i e-LA-da", "Me gusta Grecia"],
+      ["{Δεν} μου αρέσει ο καφές", "den mu a-RE-si o ka-FES", "No me gusta el café"]
+    ]},
+
+  { type: "grid", label: "Palabras útiles",
+    items: [
+      ["Ναι", "ne", "Sí"],
+      ["Όχι", "O-ji", "No"],
+      ["Ευχαριστώ", "ef-ja-ris-TO", "Gracias"],
+      ["Παρακαλώ", "pa-ra-ka-LO", "Por favor · de nada"],
+      ["Τέλεια", "TE-li-a", "Perfecto"],
+      ["Υπέροχο", "i-PE-ro-jo", "Increíble"],
+      ["Συγγνώμη", "si-GNO-mi", "Perdón · disculpa"],
+      ["Εντάξει", "en-DA-xi", "Vale · de acuerdo"]
+    ]},
+
+  { type: "end" }
+];
+
+/* ——— Rendering ——— */
+const hl = s => s.replace(/\{(.+?)\}/g, '<span class="hl">$1</span>');
+const pron = s => s.split(/([\s,·-]+)/).map(t =>
+  /[A-Z]/.test(t) && t === t.toUpperCase() ? `<span class="st">${t}</span>` : t).join("");
+const gr = s => `<div class="gr" lang="el" tabindex="0">${hl(s)}</div>`;
+const item = ([g, p, e]) => `<div class="it">${gr(g)}<div class="pr">${pron(p)}</div><div class="es">${e}</div></div>`;
+const list = (arr, cls = "") => `<div class="items ${cls}">${arr.map(item).join("")}</div>`;
+
+function head(i, s) {
+  const lem = s.lemma ? `<span class="lem" lang="el">${s.lemma}</span>` : "";
+  return `<div class="eyebrow"><span class="n">${String(i + 1).padStart(2, "0")}</span><span>—</span><span>${s.label}</span>${lem}</div>`
+    + (s.note ? `<p class="note">${s.note.replace(/([Ͱ-Ͽἀ-῿]+)/g, '<span lang="el">$1</span>')}</p>` : "");
+}
+const foot = s => s.foot ? `<p class="foot">${s.foot}</p>` : "";
+const more = s => s.more ? list(s.more, s.moreGrid ? "sm grid" : "sm") : "";
+
+const render = {
+  title: () => `<section class="s hero">
+      <h1 lang="el">Ελληνικά</h1>
+      <div class="pr">${pron("e-li-ni-KA")}</div>
+      <div class="es">Griego básico</div>
+      <div class="hint" aria-hidden="true"></div>
+    </section>`,
+  list: (s, i) => `<section class="s ${s.cls || ""}">${head(i, s)}${list(s.items)}${more(s)}${foot(s)}</section>`,
+  grid: (s, i) => `<section class="s">${head(i, s)}${list(s.items, "grid")}${more(s)}${foot(s)}</section>`,
+  cols: (s, i) => `<section class="s cols">${head(i, s)}<div class="two">${s.cols.map(c =>
+      `<div><div class="sublabel">${c.head}</div>${list(c.items, "sm")}</div>`).join("")}</div>${foot(s)}</section>`,
+  verb: (s, i) => `<section class="s wide">${head(i, s)}<div class="two">
+      <div class="conj">${s.rows.map(([w, v, p, e]) =>
+        `<div class="row"><div class="who" lang="el">${w}</div><div class="v">${gr(v)}<span class="pr">${pron(p)}</span><span class="es">${e}</span></div></div>`).join("")}</div>
+      <div><div class="sublabel">En frases</div>${list(s.examples, "sm")}</div>
+    </div>${foot(s)}</section>`,
+  pairs: (s, i) => `<section class="s">${head(i, s)}<div class="pairs">
+      <div class="phead"><span>♂</span><span>♀</span></div>
+      ${s.pairs.map(([m, f, e]) => `<div class="prow">
+        <div class="it">${gr(m[0])}<div class="pr">${pron(m[1])}</div></div>
+        <div class="it">${gr(f[0])}<div class="pr">${pron(f[1])}</div></div>
+        <div class="es">${e}</div></div>`).join("")}
+    </div>${foot(s)}</section>`,
+  end: () => `<section class="s end">
+      <h2 lang="el">Τα λέμε!</h2>
+      <div class="pr">${pron("ta LE-me")}</div>
+      <div class="es">¡Nos vemos!</div>
+    </section>`
+};
+
+const app = document.getElementById("app");
+app.innerHTML = SECTIONS.map((s, i) => render[s.type](s, i)).join("");
+
+/* ——— Tap a Greek word: light up its pronunciation ——— */
+function light(el) {
+  const box = el.closest(".it, .row");
+  if (!box) return;
+  box.classList.add("lit");
+  clearTimeout(box._t);
+  box._t = setTimeout(() => box.classList.remove("lit"), 1400);
+}
+app.addEventListener("click", e => { const g = e.target.closest(".gr"); if (g) light(g); });
+app.addEventListener("keydown", e => {
+  if ((e.key === "Enter" || e.key === " ") && e.target.classList.contains("gr")) { e.preventDefault(); light(e.target); }
+});
+
+/* ——— Scroll states ——— */
+const secs = [...app.querySelectorAll(".s")];
+if ("IntersectionObserver" in window) {
+  document.documentElement.classList.add("fx");
+  // Each section is judged on its own: it dims only once it has (almost) left
+  // through the top 30% of the screen, and sharpens again the moment any part
+  // of it comes back below that line, so scrolling up restores it right away.
+  const state = secs.map((_, i) => (i === 0 ? "active" : "future"));
+  const paint = () => secs.forEach((el, i) => {
+    el.classList.toggle("active", state[i] === "active");
+    el.classList.toggle("past", state[i] === "past");
+    el.classList.toggle("future", state[i] === "future");
+  });
+  paint();
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(en => {
+      const i = secs.indexOf(en.target);
+      if (en.isIntersecting) state[i] = "active";
+      else if (en.boundingClientRect.top < (en.rootBounds ? en.rootBounds.top : 0)) state[i] = "past";
+      else if (state[i] === "past") state[i] = "active";
+    });
+    // sections skipped over by a fast jump never fire; place them above as past
+    const line = innerHeight * 0.3;
+    secs.forEach((el, i) => { if (state[i] === "future" && el.getBoundingClientRect().bottom < line) state[i] = "past"; });
+    paint();
+  }, { rootMargin: "-30% 0px 0px 0px" });
+  secs.forEach(el => io.observe(el));
+}
+
+/* ——— Progress line ——— */
+const bar = document.getElementById("bar");
+let ticking = false;
+function progress() {
+  const max = document.documentElement.scrollHeight - innerHeight;
+  bar.style.transform = `scaleX(${max > 0 ? Math.min(1, scrollY / max) : 0})`;
+  ticking = false;
+}
+addEventListener("scroll", () => { if (!ticking) { ticking = true; requestAnimationFrame(progress); } }, { passive: true });
+addEventListener("resize", progress);
+progress();
+</script>
+
+</body></html>
