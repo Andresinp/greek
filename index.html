@@ -125,18 +125,11 @@ main{display:block}
 .s.end{padding-bottom:45vh}
 
 /* index */
-.s.toc{max-width:1000px}
-.toc .it{margin-top:2.4rem}
-.toc .groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3.4rem 4.5rem;margin-top:4rem}
-.toc h3{margin:0 0 .4rem;font-size:.7rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--accent)}
-.toc a{
-  display:grid; grid-template-columns:2.2em minmax(0,1fr) auto; column-gap:.6em; align-items:baseline;
-  padding:.8rem 0; border-bottom:1px solid var(--rule); color:var(--ink); text-decoration:none; font-size:1.06rem;
-}
-.toc a .n{font-size:.72rem;color:var(--ink-3);font-variant-numeric:tabular-nums}
-.toc a .g{font-family:var(--f-greek);font-size:1.3rem;line-height:1;color:var(--ink-3);transition:color .25s ease}
+.toc .groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2.2rem 2.5rem;margin-top:2.4rem}
+.toc h3{margin:0 0 .5rem;font-size:.66rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-3)}
+.toc a{display:flex;gap:.6em;align-items:baseline;padding:.32rem 0;color:var(--ink-2);text-decoration:none;font-size:.92rem;line-height:1.35}
+.toc a .n{min-width:1.5em;font-size:.68rem;color:var(--ink-3);font-variant-numeric:tabular-nums}
 .toc a:hover,.toc a:focus-visible{color:var(--accent);outline:none}
-.toc a:hover .g,.toc a:focus-visible .g{color:var(--accent)}
 .totop{
   position:fixed; right:16px; bottom:calc(16px + env(safe-area-inset-bottom,0px)); z-index:5;
   padding:.55em 1.1em; border:1px solid var(--rule); border-radius:999px; background:var(--paper);
@@ -159,7 +152,8 @@ main{display:block}
   .s{padding-block:12vh}
   .two,.wide .two{grid-template-columns:1fr;gap:3rem}
   .items.grid{grid-template-columns:1fr;gap:2.4rem}
-  .toc .groups{grid-template-columns:1fr;gap:2.2rem}
+  .toc .groups{gap:1.8rem 1.2rem}
+  .toc a{font-size:.86rem}
   .snd{gap:2.6rem;margin-top:2.8rem}
   .snd .items{grid-template-columns:repeat(3,minmax(0,1fr));gap:1.6rem .9rem}
   .snd .gr{font-size:1.9rem}
@@ -197,7 +191,7 @@ const SECTIONS = [
         "Yo también · igualmente", "Preposiciones", "Mucho, poco, bien, mal", "Y, pero, o, porque", "Palabras útiles"] }
     ]},
 
-  { type: "sounds", label: "Cómo suena", gk: "ου",
+  { type: "sounds", label: "Cómo suena",
     note: "Las letras en azul se leen juntas, como un solo sonido. En la pronunciación, la sílaba en MAYÚSCULAS es la fuerte.",
     cols: [
       { head: "Suenan «i»", items: [
@@ -561,10 +555,9 @@ const render = {
         `<div class="it">${gr(g)}<div class="pr">${p}</div><div class="ex" lang="el">${hl(ex)}</div><div class="es">${pron(e)}</div></div>`).join("")}</div></div>`).join("")}</div>${foot(s)}</section>`,
   toc: s => `<section class="s toc">
       <div class="eyebrow"><span>Índice</span></div>
-      ${item(["Περιεχόμενα", "pe-ri-e-JO-me-na", "Contenido"])}
       <div class="groups">${s.groups.map(g => `<div><h3>${g.head}</h3>${g.labels.map(l => {
         const t = byLabel(l);
-        return `<a href="#${t.id}"><span class="n">${String(t._n).padStart(2, "0")}</span><span>${l}</span><span class="g" lang="el">${sample(t)}</span></a>`;
+        return `<a href="#${t.id}"><span class="n">${String(t._n).padStart(2, "0")}</span><span>${l}</span></a>`;
       }).join("")}</div>`).join("")}</div>
     </section>`,
   end: () => `<section class="s end">
@@ -577,8 +570,6 @@ const render = {
 let count = 0;
 SECTIONS.forEach(s => { if (s.label) { s._n = ++count; s.id = "s" + count; } });
 const byLabel = l => SECTIONS.find(s => s.label === l);
-const sample = s => (s.gk || s.lemma || (s.items || s.cols?.[0].items)?.[0][0] || s.pairs[0][0][0])
-  .replace(/[{}]/g, "").split(" · ")[0];
 
 const app = document.getElementById("app");
 app.innerHTML = SECTIONS.map((s, i) => render[s.type](s, i)).join("");
