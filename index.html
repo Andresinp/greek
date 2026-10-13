@@ -124,17 +124,29 @@ main{display:block}
 @keyframes drip{to{top:100%}}
 .s.end{padding-bottom:45vh}
 
-/* scroll states (only when JS is running) */
-.fx .s{transition:opacity .7s ease-out,transform .7s ease-out,filter .7s ease-out;will-change:opacity,transform}
-.fx .s.future{opacity:0;transform:translateY(30px)}
-.fx .s.past{opacity:.15;transform:translateY(-20px);filter:blur(2px)}
+/* index */
+.toc .groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2.6rem 3.5rem;margin-top:3rem}
+.toc h3{margin:0 0 .6rem;font-size:.7rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-3)}
+.toc a{display:flex;gap:.9em;align-items:baseline;padding:.55rem 0;border-bottom:1px solid var(--rule);color:var(--ink);text-decoration:none;font-size:1.02rem}
+.toc a .n{min-width:1.6em;font-size:.75rem;color:var(--accent);font-variant-numeric:tabular-nums}
+.toc a:hover,.toc a:focus-visible{color:var(--accent)}
+.totop{
+  position:fixed; right:16px; bottom:calc(16px + env(safe-area-inset-bottom,0px)); z-index:5;
+  padding:.55em 1.1em; border:1px solid var(--rule); border-radius:999px; background:var(--paper);
+  font-size:.7rem; letter-spacing:.18em; text-transform:uppercase; color:var(--ink-2); text-decoration:none;
+}
+
+/* reveal: each section fades in once and then stays put (only when JS is running) */
+.fx .s{transition:opacity .7s ease-out,transform .7s ease-out}
+.fx .s:not(.seen){opacity:0;transform:translateY(24px)}
 .fx .negsec .hl{display:inline-block;transition:transform .8s cubic-bezier(.2,.7,.2,1) .25s,opacity .8s ease .25s}
-.fx .negsec:not(.active) .hl{transform:translateX(-.9em);opacity:0}
+.fx .negsec:not(.seen) .hl{transform:translateX(-.9em);opacity:0}
 
 @media (max-width:700px){
   .s{padding-block:12vh}
   .two,.wide .two{grid-template-columns:1fr;gap:3rem}
   .items.grid{grid-template-columns:1fr;gap:2.4rem}
+  .toc .groups{grid-template-columns:1fr;gap:2.2rem}
   .row{grid-template-columns:6.6em minmax(0,1fr);gap:.9rem}
   .row .who{font-size:.95rem}
   .phead,.prow{column-gap:1.4rem}
@@ -142,20 +154,62 @@ main{display:block}
 @media (prefers-reduced-motion: reduce){
   html{scroll-behavior:auto}
   .fx .s{transition:opacity .4s linear}
-  .fx .s.future,.fx .s.past{transform:none;filter:none}
+  .fx .s:not(.seen){transform:none}
   .fx .negsec .hl{transition:opacity .4s linear}
-  .fx .negsec:not(.active) .hl{transform:none}
+  .fx .negsec:not(.seen) .hl{transform:none}
   .hint::after{animation:none;top:30%}
 }
 </style>
 
 <div class="progress" aria-hidden="true"><i id="bar"></i></div>
 <main id="app" lang="es"></main>
+<a class="totop" href="#indice">Índice</a>
 
 <script>
 /* ——— Content ——— [griego, pronunciación, español]. {texto} = resaltado en azul. */
 const SECTIONS = [
   { type: "title" },
+
+  { type: "toc", id: "indice",
+    groups: [
+      { head: "Lo básico", labels: ["Cómo suena", "Saludos", "Momentos del día"] },
+      { head: "Preguntas y ayuda", labels: ["Preguntas", "Si no entiendes", "En el bar"] },
+      { head: "Verbos", labels: ["Pronombres", "Ser / estar", "Tener", "Querer", "Quiero + verbo"] },
+      { head: "Más frases", labels: ["Estar en un lugar", "¿Cambia la palabra?", "Negación", "Me gusta",
+        "Yo también · igualmente", "Preposiciones", "Mucho, poco, bien, mal", "Y, pero, o, porque", "Palabras útiles"] }
+    ]},
+
+  { type: "cols", label: "Cómo suena",
+    note: "Varias letras y parejas de letras suenan igual. En la pronunciación, la sílaba en MAYÚSCULAS es la fuerte.",
+    cols: [
+      { head: "Suenan «i»", items: [
+        ["ι · η · υ", "i", "τι → ti · qué"],
+        ["ει", "i", "είμαι → I-me · soy"],
+        ["οι", "i", "φίλοι → FI-li · amigos"]
+      ]},
+      { head: "Suenan «e» y «o»", items: [
+        ["ε · αι", "e", "και → ke · y"],
+        ["ο · ω", "o", "ωραίο → o-RE-o · bonito"]
+      ]},
+      { head: "«u», «av», «ev»", items: [
+        ["ου", "u", "μου → mu · me"],
+        ["αυ", "av · af", "αύριο → AV-rio · mañana"],
+        ["ευ", "ev · ef", "ευχαριστώ → ef-ja-ris-TO · gracias"]
+      ]},
+      { head: "Consonantes juntas", items: [
+        ["μπ", "b", "μπαρ → bar"],
+        ["ντ", "d · nd", "εντάξει → en-DA-xi · vale"],
+        ["γκ", "g", "γκρι → gri · gris"],
+        ["τσ", "ts", "τσάι → TSA-i · té"]
+      ]},
+      { head: "Letras que engañan", items: [
+        ["θ", "z · como en España", "θέλω → ZE-lo · quiero"],
+        ["δ", "d suave", "δουλειά → du-LIA · trabajo"],
+        ["χ", "j", "έχω → E-jo · tengo"],
+        ["β", "v", "βιβλίο → viv-LI-o · libro"],
+        ["γ", "g suave · y ante e, i", "για → ya · para"]
+      ]}
+    ]},
 
   { type: "list", label: "Saludos",
     note: "Γεια sirve para hola y también para adiós.",
@@ -173,6 +227,52 @@ const SECTIONS = [
       ["Καλημέρα", "ka-li-ME-ra", "Buenos días"],
       ["Καλησπέρα", "ka-lis-PE-ra", "Buenas tardes · al llegar"],
       ["Καληνύχτα", "ka-li-NIJ-ta", "Buenas noches · al despedirse"]
+    ]},
+
+  { type: "grid", label: "Preguntas",
+    note: "El signo de interrogación griego es ; — el punto y coma.",
+    items: [
+      ["Τι;", "ti", "¿Qué?"],
+      ["Πού;", "pu", "¿Dónde?"],
+      ["Πότε;", "PO-te", "¿Cuándo?"],
+      ["Πώς;", "pos", "¿Cómo?"],
+      ["Ποιος;", "pios", "¿Quién?"],
+      ["Πόσο;", "PO-so", "¿Cuánto?"]
+    ],
+    moreGrid: true,
+    more: [
+      ["Πώς σε λένε;", "pos se LE-ne", "¿Cómo te llamas?"],
+      ["Με λένε …", "me LE-ne", "Me llamo …"],
+      ["Πόσο κάνει;", "PO-so KA-ni", "¿Cuánto cuesta?"],
+      ["Τι ώρα είναι;", "ti O-ra I-ne", "¿Qué hora es?"],
+      ["Πού είναι η τουαλέτα;", "pu I-ne i tua-LE-ta", "¿Dónde está el baño?"],
+      ["Από πού είσαι;", "a-PO pu I-se", "¿De dónde eres?"]
+    ]},
+
+  { type: "list", label: "Si no entiendes",
+    items: [
+      ["Δεν καταλαβαίνω", "den ka-ta-la-VE-no", "No entiendo"],
+      ["Πιο αργά, παρακαλώ", "pio ar-GA, pa-ra-ka-LO", "Más despacio, por favor"],
+      ["Μιλάτε αγγλικά;", "mi-LA-te an-gli-KA", "¿Habla inglés?"]
+    ],
+    more: [
+      ["Μιλάτε ισπανικά;", "mi-LA-te is-pa-ni-KA", "¿Habla español?"],
+      ["Μπορείτε να το ξαναπείτε;", "bo-RI-te na to ksa-na-PI-te", "¿Puede repetirlo?"],
+      ["Τι σημαίνει …;", "ti si-ME-ni", "¿Qué significa …?"],
+      ["Δεν ξέρω", "den KSE-ro", "No sé"]
+    ]},
+
+  { type: "list", label: "En el bar",
+    note: "Para llamar al camarero basta un Συγγνώμη! con la mano levantada.",
+    items: [
+      ["Συγγνώμη!", "si-GNO-mi", "¡Perdone! · para llamar al camarero"],
+      ["Τον λογαριασμό, παρακαλώ", "ton lo-ga-riaz-MO, pa-ra-ka-LO", "La cuenta, por favor"],
+      ["Μια μπύρα, παρακαλώ", "mia BI-ra, pa-ra-ka-LO", "Una cerveza, por favor"]
+    ],
+    more: [
+      ["Τον κατάλογο, παρακαλώ", "ton ka-TA-lo-go, pa-ra-ka-LO", "La carta, por favor"],
+      ["Μπορώ να πληρώσω με κάρτα;", "bo-RO na pli-RO-so me KAR-ta", "¿Puedo pagar con tarjeta?"],
+      ["Στην υγειά μας!", "stin i-YA mas", "¡Salud!"]
     ]},
 
   { type: "cols", label: "Pronombres",
@@ -405,7 +505,7 @@ const list = (arr, cls = "") => `<div class="items ${cls}">${arr.map(item).join(
 
 function head(i, s) {
   const lem = s.lemma ? `<span class="lem" lang="el">${s.lemma}</span>` : "";
-  return `<div class="eyebrow"><span class="n">${String(i + 1).padStart(2, "0")}</span><span>—</span><span>${s.label}</span>${lem}</div>`
+  return `<div class="eyebrow"><span class="n">${String(s._n).padStart(2, "0")}</span><span>—</span><span>${s.label}</span>${lem}</div>`
     + (s.note ? `<p class="note">${s.note.replace(/([Ͱ-Ͽἀ-῿]+)/g, '<span lang="el">$1</span>')}</p>` : "");
 }
 const foot = s => s.foot ? `<p class="foot">${s.foot}</p>` : "";
@@ -434,6 +534,13 @@ const render = {
         <div class="it">${gr(f[0])}<div class="pr">${pron(f[1])}</div></div>
         <div class="es">${e}</div></div>`).join("")}
     </div>${foot(s)}</section>`,
+  toc: s => `<section class="s toc">
+      <div class="eyebrow"><span>Índice</span></div>
+      <div class="groups">${s.groups.map(g => `<div><h3>${g.head}</h3>${g.labels.map(l => {
+        const t = byLabel(l);
+        return `<a href="#${t.id}"><span class="n">${String(t._n).padStart(2, "0")}</span><span>${l}</span></a>`;
+      }).join("")}</div>`).join("")}</div>
+    </section>`,
   end: () => `<section class="s end">
       <h2 lang="el">Τα λέμε!</h2>
       <div class="pr">${pron("ta LE-me")}</div>
@@ -441,8 +548,13 @@ const render = {
     </section>`
 };
 
+let count = 0;
+SECTIONS.forEach(s => { if (s.label) { s._n = ++count; s.id = "s" + count; } });
+const byLabel = l => SECTIONS.find(s => s.label === l);
+
 const app = document.getElementById("app");
 app.innerHTML = SECTIONS.map((s, i) => render[s.type](s, i)).join("");
+[...app.children].forEach((el, i) => { if (SECTIONS[i].id) el.id = SECTIONS[i].id; });
 
 /* ——— Tap a Greek word: light up its pronunciation ——— */
 function light(el) {
@@ -461,28 +573,11 @@ app.addEventListener("keydown", e => {
 const secs = [...app.querySelectorAll(".s")];
 if ("IntersectionObserver" in window) {
   document.documentElement.classList.add("fx");
-  // Each section is judged on its own: it dims only once it has (almost) left
-  // through the top 30% of the screen, and sharpens again the moment any part
-  // of it comes back below that line, so scrolling up restores it right away.
-  const state = secs.map((_, i) => (i === 0 ? "active" : "future"));
-  const paint = () => secs.forEach((el, i) => {
-    el.classList.toggle("active", state[i] === "active");
-    el.classList.toggle("past", state[i] === "past");
-    el.classList.toggle("future", state[i] === "future");
-  });
-  paint();
-  const io = new IntersectionObserver(entries => {
-    entries.forEach(en => {
-      const i = secs.indexOf(en.target);
-      if (en.isIntersecting) state[i] = "active";
-      else if (en.boundingClientRect.top < (en.rootBounds ? en.rootBounds.top : 0)) state[i] = "past";
-      else if (state[i] === "past") state[i] = "active";
-    });
-    // sections skipped over by a fast jump never fire; place them above as past
-    const line = innerHeight * 0.3;
-    secs.forEach((el, i) => { if (state[i] === "future" && el.getBoundingClientRect().bottom < line) state[i] = "past"; });
-    paint();
-  }, { rootMargin: "-30% 0px 0px 0px" });
+  // A section fades in the first time it reaches the screen and then stays
+  // fully visible, so text never disappears while reading or scrolling back.
+  const io = new IntersectionObserver(entries => entries.forEach(en => {
+    if (en.isIntersecting) { en.target.classList.add("seen"); io.unobserve(en.target); }
+  }), { rootMargin: "0px 0px -8% 0px" });
   secs.forEach(el => io.observe(el));
 }
 
