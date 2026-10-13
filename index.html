@@ -125,20 +125,33 @@ main{display:block}
 .s.end{padding-bottom:45vh}
 
 /* index */
-.toc .groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2.6rem 3.5rem;margin-top:3rem}
-.toc h3{margin:0 0 .6rem;font-size:.7rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-3)}
-.toc a{display:flex;gap:.9em;align-items:baseline;padding:.55rem 0;border-bottom:1px solid var(--rule);color:var(--ink);text-decoration:none;font-size:1.02rem}
-.toc a .n{min-width:1.6em;font-size:.75rem;color:var(--accent);font-variant-numeric:tabular-nums}
-.toc a:hover,.toc a:focus-visible{color:var(--accent)}
+.s.toc{max-width:1000px}
+.toc .it{margin-top:2.4rem}
+.toc .groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3.4rem 4.5rem;margin-top:4rem}
+.toc h3{margin:0 0 .4rem;font-size:.7rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--accent)}
+.toc a{
+  display:grid; grid-template-columns:2.2em minmax(0,1fr) auto; column-gap:.6em; align-items:baseline;
+  padding:.8rem 0; border-bottom:1px solid var(--rule); color:var(--ink); text-decoration:none; font-size:1.06rem;
+}
+.toc a .n{font-size:.72rem;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.toc a .g{font-family:var(--f-greek);font-size:1.3rem;line-height:1;color:var(--ink-3);transition:color .25s ease}
+.toc a:hover,.toc a:focus-visible{color:var(--accent);outline:none}
+.toc a:hover .g,.toc a:focus-visible .g{color:var(--accent)}
 .totop{
   position:fixed; right:16px; bottom:calc(16px + env(safe-area-inset-bottom,0px)); z-index:5;
   padding:.55em 1.1em; border:1px solid var(--rule); border-radius:999px; background:var(--paper);
   font-size:.7rem; letter-spacing:.18em; text-transform:uppercase; color:var(--ink-2); text-decoration:none;
 }
 
-/* reveal: each section fades in once and then stays put (only when JS is running) */
-.fx .s{transition:opacity .7s ease-out,transform .7s ease-out}
-.fx .s:not(.seen){opacity:0;transform:translateY(24px)}
+/* sounds */
+.snd{display:flex;flex-direction:column;gap:3.6rem;margin-top:3.6rem}
+.snd .items{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2.4rem 2.5rem;margin-top:0}
+.snd .gr{font-size:clamp(2.2rem,6.4vw,2.8rem)}
+.snd .pr{margin-top:.3rem}
+.snd .ex{margin-top:.7rem;font-family:var(--f-greek);font-size:1.25rem;color:var(--ink-2)}
+.snd .es{margin-top:.1rem;font-size:.84rem}
+
+/* scroll fade: opacity is set per line by the script, tied to scroll position */
 .fx .negsec .hl{display:inline-block;transition:transform .8s cubic-bezier(.2,.7,.2,1) .25s,opacity .8s ease .25s}
 .fx .negsec:not(.seen) .hl{transform:translateX(-.9em);opacity:0}
 
@@ -147,6 +160,7 @@ main{display:block}
   .two,.wide .two{grid-template-columns:1fr;gap:3rem}
   .items.grid{grid-template-columns:1fr;gap:2.4rem}
   .toc .groups{grid-template-columns:1fr;gap:2.2rem}
+  .snd .items{grid-template-columns:repeat(2,minmax(0,1fr));gap:2rem 1.4rem}
   .row{grid-template-columns:6.6em minmax(0,1fr);gap:.9rem}
   .row .who{font-size:.95rem}
   .phead,.prow{column-gap:1.4rem}
@@ -154,7 +168,6 @@ main{display:block}
 @media (prefers-reduced-motion: reduce){
   html{scroll-behavior:auto}
   .fx .s{transition:opacity .4s linear}
-  .fx .s:not(.seen){transform:none}
   .fx .negsec .hl{transition:opacity .4s linear}
   .fx .negsec:not(.seen) .hl{transform:none}
   .hint::after{animation:none;top:30%}
@@ -179,35 +192,39 @@ const SECTIONS = [
         "Yo también · igualmente", "Preposiciones", "Mucho, poco, bien, mal", "Y, pero, o, porque", "Palabras útiles"] }
     ]},
 
-  { type: "cols", label: "Cómo suena",
-    note: "Varias letras y parejas de letras suenan igual. En la pronunciación, la sílaba en MAYÚSCULAS es la fuerte.",
+  { type: "sounds", label: "Cómo suena", gk: "ου",
+    note: "Las letras en azul se leen juntas, como un solo sonido. En la pronunciación, la sílaba en MAYÚSCULAS es la fuerte.",
     cols: [
       { head: "Suenan «i»", items: [
-        ["ι · η · υ", "i", "τι → ti · qué"],
-        ["ει", "i", "είμαι → I-me · soy"],
-        ["οι", "i", "φίλοι → FI-li · amigos"]
+        ["ι", "i", "τ{ι}", "ti · qué"],
+        ["η", "i", "καλ{ή}", "ka-LI · buena"],
+        ["υ", "i", "εσ{ύ}", "e-SI · tú"],
+        ["{ει}", "i", "{εί}μαι", "I-me · soy"],
+        ["{οι}", "i", "φίλ{οι}", "FI-li · amigos"]
       ]},
       { head: "Suenan «e» y «o»", items: [
-        ["ε · αι", "e", "και → ke · y"],
-        ["ο · ω", "o", "ωραίο → o-RE-o · bonito"]
+        ["ε", "e", "{ε}γώ", "e-GO · yo"],
+        ["{αι}", "e", "κ{αι}", "ke · y"],
+        ["ο", "o", "{ό}χι", "O-ji · no"],
+        ["ω", "o", "{ω}ραίο", "o-RE-o · bonito"]
       ]},
       { head: "«u», «av», «ev»", items: [
-        ["ου", "u", "μου → mu · me"],
-        ["αυ", "av · af", "αύριο → AV-rio · mañana"],
-        ["ευ", "ev · ef", "ευχαριστώ → ef-ja-ris-TO · gracias"]
+        ["{ου}", "u", "μ{ου}", "mu · me"],
+        ["{αυ}", "av · af", "{αύ}ριο", "AV-rio · mañana"],
+        ["{ευ}", "ev · ef", "{ευ}χαριστώ", "ef-ja-ris-TO · gracias"]
       ]},
       { head: "Consonantes juntas", items: [
-        ["μπ", "b", "μπαρ → bar"],
-        ["ντ", "d · nd", "εντάξει → en-DA-xi · vale"],
-        ["γκ", "g", "γκρι → gri · gris"],
-        ["τσ", "ts", "τσάι → TSA-i · té"]
+        ["{μπ}", "b", "{μπ}αρ", "bar"],
+        ["{ντ}", "d · nd", "ε{ντ}άξει", "en-DA-xi · vale"],
+        ["{γκ}", "g", "{γκ}ρι", "gri · gris"],
+        ["{τσ}", "ts", "{τσ}άι", "TSA-i · té"]
       ]},
       { head: "Letras que engañan", items: [
-        ["θ", "z · como en España", "θέλω → ZE-lo · quiero"],
-        ["δ", "d suave", "δουλειά → du-LIA · trabajo"],
-        ["χ", "j", "έχω → E-jo · tengo"],
-        ["β", "v", "βιβλίο → viv-LI-o · libro"],
-        ["γ", "g suave · y ante e, i", "για → ya · para"]
+        ["θ", "z · como en España", "{θ}έλω", "ZE-lo · quiero"],
+        ["δ", "d suave", "{δ}ουλειά", "du-LIA · trabajo"],
+        ["χ", "j", "έ{χ}ω", "E-jo · tengo"],
+        ["β", "v", "{β}ι{β}λίο", "viv-LI-o · libro"],
+        ["γ", "g suave · y ante e, i", "{γ}ια", "ya · para"]
       ]}
     ]},
 
@@ -534,11 +551,15 @@ const render = {
         <div class="it">${gr(f[0])}<div class="pr">${pron(f[1])}</div></div>
         <div class="es">${e}</div></div>`).join("")}
     </div>${foot(s)}</section>`,
+  sounds: (s, i) => `<section class="s wide">${head(i, s)}<div class="snd">${s.cols.map(c =>
+      `<div><div class="sublabel">${c.head}</div><div class="items">${c.items.map(([g, p, ex, e]) =>
+        `<div class="it">${gr(g)}<div class="pr">${p}</div><div class="ex" lang="el">${hl(ex)}</div><div class="es">${pron(e)}</div></div>`).join("")}</div></div>`).join("")}</div>${foot(s)}</section>`,
   toc: s => `<section class="s toc">
       <div class="eyebrow"><span>Índice</span></div>
+      ${item(["Περιεχόμενα", "pe-ri-e-JO-me-na", "Contenido"])}
       <div class="groups">${s.groups.map(g => `<div><h3>${g.head}</h3>${g.labels.map(l => {
         const t = byLabel(l);
-        return `<a href="#${t.id}"><span class="n">${String(t._n).padStart(2, "0")}</span><span>${l}</span></a>`;
+        return `<a href="#${t.id}"><span class="n">${String(t._n).padStart(2, "0")}</span><span>${l}</span><span class="g" lang="el">${sample(t)}</span></a>`;
       }).join("")}</div>`).join("")}</div>
     </section>`,
   end: () => `<section class="s end">
@@ -551,10 +572,14 @@ const render = {
 let count = 0;
 SECTIONS.forEach(s => { if (s.label) { s._n = ++count; s.id = "s" + count; } });
 const byLabel = l => SECTIONS.find(s => s.label === l);
+const sample = s => (s.gk || s.lemma || (s.items || s.cols?.[0].items)?.[0][0] || s.pairs[0][0][0])
+  .replace(/[{}]/g, "").split(" · ")[0];
 
 const app = document.getElementById("app");
 app.innerHTML = SECTIONS.map((s, i) => render[s.type](s, i)).join("");
 [...app.children].forEach((el, i) => { if (SECTIONS[i].id) el.id = SECTIONS[i].id; });
+const jump = () => { if (location.hash) document.getElementById(location.hash.slice(1))?.scrollIntoView({ behavior: "instant" }); };
+addEventListener("load", jump, { once: true });
 
 /* ——— Tap a Greek word: light up its pronunciation ——— */
 function light(el) {
@@ -569,16 +594,48 @@ app.addEventListener("keydown", e => {
   if ((e.key === "Enter" || e.key === " ") && e.target.classList.contains("gr")) { e.preventDefault(); light(e.target); }
 });
 
-/* ——— Scroll states ——— */
-const secs = [...app.querySelectorAll(".s")];
+/* ——— Scroll fade ———
+   Each line is judged on its own: full strength in the middle of the screen,
+   fading out as it nears the top or bottom edge, and back as it returns.
+   Positions are measured once (and on resize) so scrolling only writes styles. */
+const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const picked = [...app.querySelectorAll(".eyebrow,.note,.foot,.sublabel,.phead,.prow,.row,.it,.toc h3,.toc a,.hero > *,.end > *")];
+const chosen = new Set(picked);
+const lines = picked.filter(el => {
+  for (let p = el.parentElement; p && p !== app; p = p.parentElement) if (chosen.has(p)) return false;
+  return true;
+});
+let spots = [];
+function measure() {
+  lines.forEach(el => { el.style.transform = ""; });
+  spots = lines.map(el => { const r = el.getBoundingClientRect(); return { mid: r.top + scrollY + r.height / 2, o: -1 }; });
+  fade();
+}
+function fade() {
+  const vh = innerHeight, zone = vh * 0.24, page = document.documentElement.scrollHeight;
+  lines.forEach((el, i) => {
+    const y = spots[i].mid - scrollY;
+    const top = Math.min(zone, spots[i].mid), bottom = Math.min(zone, page - spots[i].mid);
+    const t = Math.max(0, Math.min(1, y / top, (vh - y) / bottom));
+    const o = Math.round(t * t * (3 - 2 * t) * 100) / 100;
+    if (o === spots[i].o) return;
+    spots[i].o = o;
+    el.style.opacity = o;
+    if (!still) el.style.transform = o < 1 ? `translateY(${((y < vh / 2 ? -1 : 1) * (1 - o) * 16).toFixed(1)}px)` : "";
+  });
+}
+let fading = false;
+addEventListener("scroll", () => { if (!fading) { fading = true; requestAnimationFrame(() => { fade(); fading = false; }); } }, { passive: true });
+addEventListener("resize", measure);
+document.fonts?.ready.then(measure);
+measure();
+
+/* the δεν / μου highlight slides in while its section is on screen */
 if ("IntersectionObserver" in window) {
   document.documentElement.classList.add("fx");
-  // A section fades in the first time it reaches the screen and then stays
-  // fully visible, so text never disappears while reading or scrolling back.
-  const io = new IntersectionObserver(entries => entries.forEach(en => {
-    if (en.isIntersecting) { en.target.classList.add("seen"); io.unobserve(en.target); }
-  }), { rootMargin: "0px 0px -8% 0px" });
-  secs.forEach(el => io.observe(el));
+  const io = new IntersectionObserver(entries => entries.forEach(en =>
+    en.target.classList.toggle("seen", en.isIntersecting)), { rootMargin: "-25% 0px -25% 0px" });
+  app.querySelectorAll(".negsec").forEach(el => io.observe(el));
 }
 
 /* ——— Progress line ——— */
