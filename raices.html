@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Mapa de raíces</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+Display:wght@300;400;600&family=Commissioner:wght@300;400;500;600&display=swap">
+<style>
+/* Layout: a full-screen canvas you drag and zoom; the tree is laid out by the script below. */
+:root{
+  --paper:#f7f5f0;
+  --card:#fffdf8;
+  --ink:#1a1a1a;
+  --ink-2:#555c66;
+  --ink-3:#7a808a;
+  --rule:#dedbd3;
+  --gr:#1f5fa8;
+  --la:#a5482b;
+  --f-greek:"Noto Serif Display","Noto Serif",Georgia,"Times New Roman",serif;
+  --f-text:"Commissioner",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-text);-webkit-font-smoothing:antialiased}
+
+#view{position:fixed;inset:0;touch-action:none;cursor:grab;overflow:hidden}
+#view.dragging{cursor:grabbing}
+#world{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
+#world.anim{transition:transform .45s cubic-bezier(.2,.7,.2,1)}
+#edges{position:absolute;left:0;top:0;overflow:visible;pointer-events:none}
+#edges path{fill:none;stroke-width:2}
+
+/* nodes */
+.node{position:absolute;width:280px;display:flex;flex-direction:column;align-items:center;user-select:none;-webkit-user-select:none}
+.via{max-width:260px;margin-bottom:10px;text-align:center;font-size:14px;font-style:italic;line-height:1.35;color:var(--ink-3)}
+.box{width:100%;padding:16px 18px 18px;background:var(--card);border:1px solid var(--rule);border-radius:12px;text-align:center}
+.tag{font-size:12px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3)}
+.t{margin-top:4px;font-family:var(--f-greek);font-size:34px;line-height:1.15;overflow-wrap:anywhere}
+.s{margin-top:6px;font-size:16px;line-height:1.35;color:var(--ink-2)}
+.laws{margin:12px 0 0;padding:0;list-style:none;font-size:15px;line-height:1.4;color:var(--ink-2)}
+.laws li + li{margin-top:6px}
+.words{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:14px}
+.words span{padding:5px 12px;border-radius:999px;background:var(--paper);border:1px solid var(--rule);font-size:16px}
+
+.k-head .box{background:none;border:none;padding-block:0}
+.k-head .t{font-size:40px;font-weight:300}
+.k-pie .box{border-style:dashed;border-color:var(--ink-3)}
+.k-gr .box{border-color:var(--gr);border-top-width:5px}
+.k-gr .t{color:var(--gr)}
+.k-la .box{border-color:var(--la);border-top-width:5px}
+.k-la .t{color:var(--la)}
+.k-es .box{border:2px solid var(--ink)}
+.k-es .t{font-family:var(--f-text);font-weight:600;font-size:32px;letter-spacing:.02em}
+
+/* overlay */
+.top{position:fixed;left:0;right:0;top:0;z-index:2;display:flex;flex-wrap:wrap;align-items:center;gap:8px 20px;
+  padding:calc(12px + env(safe-area-inset-top,0px)) 16px 12px;background:linear-gradient(var(--paper) 70%,transparent);pointer-events:none}
+.top > *{pointer-events:auto}
+.back{color:var(--ink-2);text-decoration:none;font-size:14px}
+.back:hover{color:var(--gr)}
+.title{font-family:var(--f-greek);font-size:20px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--ink-2)}
+.legend i{display:inline-block;width:10px;height:10px;margin-right:6px;border-radius:2px;vertical-align:-1px}
+.controls{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:2;display:flex;gap:8px}
+.controls button{min-width:48px;height:48px;padding:0 16px;border:1px solid var(--rule);border-radius:999px;background:var(--card);
+  color:var(--ink);font:500 15px var(--f-text);cursor:pointer;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.controls button.big{font-size:22px;padding:0}
+.controls button:hover{border-color:var(--ink-3)}
+.hint{position:fixed;left:16px;bottom:calc(22px + env(safe-area-inset-bottom,0px));z-index:2;max-width:42vw;font-size:13px;color:var(--ink-3);pointer-events:none}
+@media (max-width:600px){ .hint{display:none} .title{font-size:18px} }
+</style>
+</head>
+<body>
+
+<div id="view"><div id="world"><svg id="edges"></svg></div></div>
+
+<header class="top">
+  <a class="back" href="./">← Griego básico</a>
+  <span class="title">Mapa de raíces</span>
+  <span class="legend">
+    <span><i style="background:var(--ink-3)"></i>Indoeuropeo</span>
+    <span><i style="background:var(--gr)"></i>Griego</span>
+    <span><i style="background:var(--la)"></i>Latín</span>
+    <span><i style="background:var(--ink)"></i>Español</span>
+  </span>
+</header>
+<p class="hint">Arrastra para moverte. Pellizca, usa ctrl + rueda o los botones para acercar y alejar.</p>
+<div class="controls">
+  <button class="big" id="out" aria-label="Alejar">−</button>
+  <button class="big" id="in" aria-label="Acercar">+</button>
+  <button id="all">Ver todo</button>
+</div>
+
+<script>
+/* ——— Content ———
+   k: head (título del tronco) · pie (indoeuropeo) · gr (griego) · la (latín) · es (español)
+   via: el cambio que lleva del padre a este nodo · laws: leyes fonéticas de la rama */
+const TREES = [
+  { k: "head", tag: "Tronco 1", t: "El cielo y el día", kids: [
+    { k: "pie", tag: "Raíz", t: "*dyeu- / *deiw-", s: "«brillar», el cielo de día", kids: [
+      { k: "gr", tag: "Rama griega", t: "Griego", laws: ["Con acento: *dy- → Z", "Sin acento: *diw- → Δ"], kids: [
+        { k: "gr", tag: "Nominativo", t: "*Dyḗws", kids: [
+          { k: "gr", t: "ΖΕΥΣ", s: "Zeús · griego clásico" }
+        ]},
+        { k: "gr", tag: "Casos oblicuos", t: "*Diw-ós", kids: [
+          { k: "gr", t: "ΔΙΟΣ", s: "Diós · genitivo clásico", kids: [
+            { k: "gr", via: "Se iguala la forma, del s. III a.C. al s. VI d.C.", t: "ΔΙΑΣ", s: "Días · griego moderno" }
+          ]}
+        ]}
+      ]},
+      { k: "la", tag: "Rama latina", t: "Latín", laws: ["Se pierde la d: *dj- → I", "*deiw- → *deu-"], kids: [
+        { k: "la", tag: "La divinidad", t: "*deywós", kids: [
+          { k: "la", t: "deus", kids: [
+            { k: "es", t: "DIOS", s: "dio en italiano", words: ["deidad", "divino"] }
+          ]}
+        ]},
+        { k: "la", tag: "La luz del día", t: "*dyēus", kids: [
+          { k: "la", t: "dies", kids: [
+            { k: "es", t: "DÍA", s: "dì · giorno en italiano", words: ["diario", "cotidiano"] }
+          ]}
+        ]}
+      ]},
+      { k: "pie", tag: "Fórmula", t: "*Dyēus ph₂tēr", s: "«Padre Cielo»", kids: [
+        { k: "gr", tag: "Griego", t: "Ζεῦ πάτερ", s: "invocación a Zeus" },
+        { k: "la", tag: "Latín", t: "*Dieus-piter", kids: [
+          { k: "la", via: "Cae la *d- y se dobla la p", t: "Iuppiter", kids: [
+            { k: "es", via: "La /j/ pasa a sonar /x/", t: "JÚPITER", words: ["jueves · de Iovis dies"] }
+          ]}
+        ]}
+      ]}
+    ]}
+  ]},
+
+  { k: "head", tag: "Tronco 2", t: "Lo ritual y sagrado", kids: [
+    { k: "pie", tag: "Raíz", t: "*dʰeh₁s-", s: "«establecer lo sagrado»", kids: [
+      { k: "gr", tag: "Rama griega", t: "Griego", laws: ["La aspirada se ensordece: *dʰ → θ"], kids: [
+        { k: "gr", t: "*tʰeh₁-os", kids: [
+          { k: "gr", t: "ΘΕΟΣ", s: "Theós · dios", kids: [
+            { k: "gr", tag: "Vocativo", t: "ΘΕΕ", s: "Theé · «¡oh, Dios!»" },
+            { k: "es", tag: "Derivados", t: "teo-", words: ["teología", "ateo", "entusiasmo · de en-theos", "teocracia"] }
+          ]}
+        ]}
+      ]},
+      { k: "la", tag: "Rama latina", t: "Latín", laws: ["*dʰ al inicio → f"], kids: [
+        { k: "la", t: "*fas- / *fes-", kids: [
+          { k: "la", tag: "*dʰh₁s-no-m", t: "fanum", words: ["profano", "fanático"] },
+          { k: "la", tag: "*dʰeh₁s-to-s", t: "festus", words: ["fiesta", "festejo"] },
+          { k: "la", tag: "*dʰeh₁s-ye-", t: "feriae", words: ["feria", "feira · portugués"] }
+        ]}
+      ]}
+    ]}
+  ]}
+];
+
+/* ——— Build the nodes ——— */
+const W = 280, GAP_X = 48, GAP_Y = 64, TREE_GAP = 200;
+const view = document.getElementById("view"), world = document.getElementById("world"), svg = document.getElementById("edges");
+const all = [];
+
+function make(n, depth) {
+  n.depth = depth;
+  n.el = document.createElement("div");
+  n.el.className = "node k-" + n.k;
+  n.el.innerHTML = (n.via ? `<div class="via">${n.via}</div>` : "") + `<div class="box">`
+    + (n.tag ? `<div class="tag">${n.tag}</div>` : "")
+    + `<div class="t">${n.t}</div>`
+    + (n.s ? `<div class="s">${n.s}</div>` : "")
+    + (n.laws ? `<ul class="laws">${n.laws.map(l => `<li>${l}</li>`).join("")}</ul>` : "")
+    + (n.words ? `<div class="words">${n.words.map(w => `<span>${w}</span>`).join("")}</div>` : "")
+    + `</div>`;
+  world.appendChild(n.el);
+  all.push(n);
+  (n.kids || []).forEach(k => make(k, depth + 1));
+}
+TREES.forEach(t => make(t, 0));
+
+/* ——— Lay out: each subtree as wide as its children, rows as tall as their tallest node ——— */
+let size = { w: 0, h: 0 };
+function span(n) {
+  const kids = n.kids || [];
+  n.span = Math.max(W, kids.reduce((a, k) => a + span(k), 0) + GAP_X * Math.max(0, kids.length - 1));
+  return n.span;
+}
+function place(n, left) {
+  n.x = left + n.span / 2 - W / 2;
+  const kids = n.kids || [];
+  let x = left + (n.span - (kids.reduce((a, k) => a + k.span, 0) + GAP_X * Math.max(0, kids.length - 1))) / 2;
+  kids.forEach(k => { place(k, x); x += k.span + GAP_X; });
+}
+function layout() {
+  const rows = [];
+  all.forEach(n => { n.h = n.el.offsetHeight; rows[n.depth] = Math.max(rows[n.depth] || 0, n.h); });
+  const rowTop = []; let y = 0;
+  rows.forEach((h, d) => { rowTop[d] = y; y += h + GAP_Y; });
+  let left = 0;
+  TREES.forEach(t => { span(t); place(t, left); left += t.span + TREE_GAP; });
+  // a node sits at the bottom of its row, so the boxes of one row line up
+  all.forEach(n => { n.y = rowTop[n.depth] + rows[n.depth] - n.h; n.el.style.left = n.x + "px"; n.el.style.top = n.y + "px"; });
+  size = { w: left - TREE_GAP, h: y - GAP_Y };
+  svg.setAttribute("width", size.w); svg.setAttribute("height", size.h);
+  const color = { gr: "var(--gr)", la: "var(--la)", es: "var(--ink)", pie: "var(--ink-3)", head: "var(--ink-3)" };
+  svg.innerHTML = all.flatMap(n => (n.kids || []).map(k => {
+    const x1 = n.x + W / 2, y1 = n.y + n.h, x2 = k.x + W / 2, y2 = k.y, m = (y1 + y2) / 2;
+    return `<path d="M${x1},${y1} C${x1},${m} ${x2},${m} ${x2},${y2}" stroke="${color[k.k]}" opacity=".55"/>`;
+  })).join("");
+}
+
+/* ——— Pan and zoom ——— */
+let s = 1, tx = 0, ty = 0;
+const MIN = 0.08, MAX = 2.5;
+const apply = () => { world.style.transform = `translate(${tx}px,${ty}px) scale(${s})`; };
+function animate(fn) {
+  world.classList.add("anim"); fn(); apply();
+  clearTimeout(animate.t); animate.t = setTimeout(() => world.classList.remove("anim"), 460);
+}
+function zoomAt(px, py, f) {
+  const ns = Math.min(MAX, Math.max(MIN, s * f));
+  tx = px - (px - tx) * ns / s; ty = py - (py - ty) * ns / s; s = ns;
+}
+function fitAll() {
+  const top = 90, pad = 24;
+  s = Math.min((innerWidth - pad * 2) / size.w, (innerHeight - top - pad) / size.h, 1);
+  tx = (innerWidth - size.w * s) / 2; ty = top + (innerHeight - top - pad - size.h * s) / 2;
+}
+function start() {
+  // open readable on the first trunk's title; "Ver todo" or zooming out shows the whole tree
+  const first = TREES[0];
+  s = innerWidth < 700 ? 0.85 : 1;
+  tx = innerWidth / 2 - (first.x + W / 2) * s; ty = 110;
+}
+
+document.getElementById("in").onclick = () => animate(() => zoomAt(innerWidth / 2, innerHeight / 2, 1.5));
+document.getElementById("out").onclick = () => animate(() => zoomAt(innerWidth / 2, innerHeight / 2, 1 / 1.5));
+document.getElementById("all").onclick = () => animate(fitAll);
+addEventListener("keydown", e => {
+  if (e.key === "+" || e.key === "=") animate(() => zoomAt(innerWidth / 2, innerHeight / 2, 1.5));
+  else if (e.key === "-") animate(() => zoomAt(innerWidth / 2, innerHeight / 2, 1 / 1.5));
+  else if (e.key === "0") animate(fitAll);
+});
+
+view.addEventListener("wheel", e => {
+  e.preventDefault();
+  world.classList.remove("anim");
+  if (e.ctrlKey || e.metaKey) zoomAt(e.clientX, e.clientY, Math.exp(-e.deltaY * 0.01)); // pinch on a trackpad, or ctrl + wheel
+  else { tx -= e.deltaX; ty -= e.deltaY; }
+  apply();
+}, { passive: false });
+view.addEventListener("dblclick", e => animate(() => zoomAt(e.clientX, e.clientY, 1.6)));
+
+const pts = new Map();
+let pinch = null;
+view.addEventListener("pointerdown", e => {
+  view.setPointerCapture(e.pointerId);
+  pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  world.classList.remove("anim"); view.classList.add("dragging");
+  pinch = null;
+});
+view.addEventListener("pointermove", e => {
+  const p = pts.get(e.pointerId);
+  if (!p) return;
+  if (pts.size === 1) { tx += e.clientX - p.x; ty += e.clientY - p.y; }
+  p.x = e.clientX; p.y = e.clientY;
+  if (pts.size === 2) {
+    const [a, b] = [...pts.values()];
+    const d = Math.hypot(a.x - b.x, a.y - b.y), mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+    if (pinch) { tx += mx - pinch.mx; ty += my - pinch.my; zoomAt(mx, my, d / pinch.d); }
+    pinch = { d, mx, my };
+  }
+  apply();
+});
+const lift = e => { pts.delete(e.pointerId); pinch = null; if (!pts.size) view.classList.remove("dragging"); };
+view.addEventListener("pointerup", lift);
+view.addEventListener("pointercancel", lift);
+
+layout(); start(); apply();
+document.fonts?.ready.then(() => { layout(); start(); apply(); });
+addEventListener("resize", () => { layout(); apply(); });
+</script>
+</body>
+</html>

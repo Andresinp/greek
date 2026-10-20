@@ -130,6 +130,7 @@ main{display:block}
 .toc a{display:flex;gap:.6em;align-items:baseline;padding:.32rem 0;color:var(--ink-2);text-decoration:none;font-size:.92rem;line-height:1.35}
 .toc a .n{min-width:1.5em;font-size:.68rem;color:var(--ink-3);font-variant-numeric:tabular-nums}
 .toc a:hover,.toc a:focus-visible{color:var(--accent);outline:none}
+.toc .more{display:inline-flex;margin-top:2.2rem;color:var(--accent);font-size:.92rem}
 .totop{
   position:fixed; right:16px; bottom:calc(16px + env(safe-area-inset-bottom,0px)); z-index:5;
   padding:.55em 1.1em; border:1px solid var(--rule); border-radius:999px; background:var(--paper);
@@ -559,6 +560,7 @@ const render = {
         const t = byLabel(l);
         return `<a href="#${t.id}"><span class="n">${String(t._n).padStart(2, "0")}</span><span>${l}</span></a>`;
       }).join("")}</div>`).join("")}</div>
+      <a class="more" href="raices.html">Mapa de raíces · etimología →</a>
     </section>`,
   end: () => `<section class="s end">
       <h2 lang="el">Τα λέμε!</h2>
