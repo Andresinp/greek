@@ -29,7 +29,28 @@ body{background:var(--paper);color:var(--ink);font-family:var(--f-mono);-webkit-
 #view.dragging{cursor:grabbing}
 #world{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
 #world.anim{transition:transform .45s cubic-bezier(.2,.7,.2,1)}
-#map{margin:0;padding:48px;font:300 16px/1.55 var(--f-mono);color:var(--ink);white-space:pre;user-select:none;-webkit-user-select:none}
+#map{margin:0;padding:48px;font:300 16px/1.55 var(--f-mono);color:var(--ink);white-space:pre;user-select:none;-webkit-user-select:none;
+  -webkit-text-size-adjust:100%;text-size-adjust:100%}
+
+/* Every character outside plain ASCII sits in a cell exactly one column wide, so a glyph borrowed
+   from another font can never push the columns. Tree lines are drawn, not typed: they always meet. */
+#map .c,#map .b{display:inline-block;width:1ch;text-align:center;vertical-align:top}
+#map .b{position:relative;height:1.55em}
+#map .b::before{content:"";position:absolute;top:50%;left:var(--hl,0);right:var(--hr,0);border-top:1px solid var(--line);display:var(--h,block)}
+#map .b::after{content:"";position:absolute;left:50%;top:var(--vt,0);bottom:var(--vb,0);border-left:1px solid var(--line);display:var(--v,block)}
+#map .v{--h:none}
+#map .hz{--v:none}
+#map .tl{--hl:50%;--vt:50%}
+#map .tr{--hr:50%;--vt:50%}
+#map .bl{--hl:50%;--vb:50%}
+#map .br{--hr:50%;--vb:50%}
+#map .lt{--hl:50%}
+#map .rt{--hr:50%}
+#map .td{--vt:50%}
+#map .tu{--vb:50%}
+#map .ar{--vb:55%}
+#map .ar::before{left:50%;right:auto;top:auto;bottom:22%;width:0;margin-left:-4px;border-top:6px solid var(--line);
+  border-left:4px solid transparent;border-right:4px solid transparent}
 
 #map .ln{color:var(--line)}
 #map .h{font-weight:600;color:var(--ink)}
@@ -171,7 +192,13 @@ const RULES = [
   ["pie", "\\*[^\\s(),\"]+(?: ph₂tēr)?"]
 ];
 const re = new RegExp(RULES.map(([, p]) => `(${p})`).join("|"), "gu");
-const esc = t => t.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const BOX = { "│": "v", "─": "hz", "┌": "tl", "┐": "tr", "└": "bl", "┘": "br", "├": "lt", "┤": "rt", "┬": "td", "┴": "tu", "┼": "x", "▼": "ar" };
+const graphemes = t => Intl.Segmenter ? [...new Intl.Segmenter("es", { granularity: "grapheme" }).segment(t)].map(g => g.segment) : [...t];
+const esc = t => graphemes(t).map(g =>
+  BOX[g] ? `<i class="b ${BOX[g]}"></i>`
+  : g === "&" ? "&amp;" : g === "<" ? "&lt;" : g === ">" ? "&gt;"
+  : /^[\x20-\x7e]$/.test(g) ? g
+  : `<span class="c">${g}</span>`).join("");
 const text = document.getElementById("source").textContent.replace(/^\n/, "").replace(/\s+$/, "");
 let html = "", last = 0;
 for (const m of text.matchAll(re)) {
