@@ -57,8 +57,6 @@ body{background:var(--paper);color:var(--ink);font-family:var(--f-mono);-webkit-
   font:400 15px var(--f-mono);cursor:pointer}
 .controls button.big{font-size:22px}
 .controls button:hover{color:var(--gr)}
-.hint{position:fixed;left:16px;bottom:calc(26px + env(safe-area-inset-bottom,0px));z-index:2;margin:0;font-size:12px;color:var(--ink-3);pointer-events:none}
-@media (max-width:640px){ .hint{display:none} }
 </style>
 </head>
 <body>
@@ -70,7 +68,6 @@ body{background:var(--paper);color:var(--ink);font-family:var(--f-mono);-webkit-
   <span class="title">Mapa de raíces</span>
   <span class="legend"><span class="pie">*indoeuropeo</span><span class="gr">griego</span><span class="la">latín</span><span class="es">español</span></span>
 </header>
-<p class="hint">arrastra para moverte · pellizca, ctrl + rueda o + − para el zoom</p>
 <div class="controls">
   <button class="big" id="out" aria-label="Alejar">−</button>
   <button class="big" id="in" aria-label="Acercar">+</button>
